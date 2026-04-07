@@ -39,12 +39,15 @@
         position: sticky;
         top: 0;
         z-index: 100;
+        overflow: hidden;
       }
 
       .topbar-brand {
         display: flex;
         align-items: center;
         gap: 1rem;
+        min-width: 0;
+        overflow: hidden;
       }
 
       .topbar-brand-name {
@@ -53,12 +56,14 @@
         letter-spacing: 0.2em;
         text-transform: uppercase;
         color: var(--white);
+        white-space: nowrap;
       }
 
       .topbar-brand-sep {
         width: 1px;
         height: 16px;
         background: #444;
+        flex-shrink: 0;
       }
 
       .topbar-brand-tag {
@@ -67,6 +72,7 @@
         letter-spacing: 0.15em;
         text-transform: uppercase;
         color: #888;
+        white-space: nowrap;
       }
 
       .live-indicator {
@@ -78,12 +84,14 @@
         color: var(--red);
         letter-spacing: 0.15em;
         text-transform: uppercase;
+        flex-shrink: 0;
       }
 
       .live-dot {
         width: 6px;
         height: 6px;
         background: var(--red);
+        flex-shrink: 0;
         animation: blink 1.4s step-end infinite;
       }
 
@@ -140,6 +148,7 @@
         margin-bottom: 0;
         border: var(--border);
         border-bottom: none;
+        flex-wrap: wrap;
       }
 
       .controls-title {
@@ -152,6 +161,7 @@
         border-right: var(--border);
         margin-right: auto;
         background: var(--gray);
+        white-space: nowrap;
       }
 
       .btn-ctrl {
@@ -167,10 +177,12 @@
         transition: background 0.1s, color 0.1s;
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 0.4rem;
         background: var(--white);
         color: var(--black);
         height: 100%;
+        white-space: nowrap;
       }
 
       .btn-ctrl:hover { background: var(--black); color: var(--white); }
@@ -179,11 +191,14 @@
       /* Table */
       .table-wrap {
         border: var(--border);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       table {
         width: 100%;
         border-collapse: collapse;
+        min-width: 480px;
       }
 
       thead tr {
@@ -251,7 +266,7 @@
       .badge-completed { color: #999; border-color: #ccc; }
 
       /* Action buttons */
-      .actions { display: flex; gap: 0.35rem; align-items: center; }
+      .actions { display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap; }
 
       .btn-action {
         border: 2px solid var(--black);
@@ -265,6 +280,7 @@
         font-family: 'Inter', Helvetica, Arial, sans-serif;
         background: var(--white);
         color: var(--black);
+        white-space: nowrap;
       }
 
       .btn-complete:hover, .btn-edit:hover { background: var(--black); color: var(--white); }
@@ -297,6 +313,7 @@
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.15s;
+        padding: 1rem;
       }
 
       .modal-overlay.active { opacity: 1; pointer-events: all; }
@@ -305,7 +322,7 @@
         background: var(--white);
         border: var(--border);
         padding: 2rem;
-        width: 90%;
+        width: 100%;
         max-width: 400px;
         transform: translateY(10px);
         transition: transform 0.15s;
@@ -422,14 +439,57 @@
       .toast.success { border-left: 4px solid #00c070; }
       .toast.error { border-left: 4px solid var(--red); }
 
+      /* ── Mobile ── */
       @media (max-width: 640px) {
-        .stats-row { grid-template-columns: repeat(3, 1fr); }
-        .stat-value { font-size: 2.2rem; }
-        thead th:nth-child(3), tbody td:nth-child(3),
-        thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
-        .topbar { padding: 0 1rem; }
+        .topbar {
+          padding: 0 1rem;
+          height: 48px;
+        }
+
+        .topbar-brand-name { font-size: 0.65rem; }
+        .topbar-brand-tag  { display: none; }
+        .topbar-brand-sep  { display: none; }
+
         .main { padding: 1rem; }
+
+        /* Stats: smaller numbers so they don't overflow */
+        .stats-row { margin-bottom: 1.25rem; }
+        .stat-card  { padding: 0.85rem 0.75rem; }
+        .stat-value { font-size: 2rem; }
+        .stat-label { font-size: 0.55rem; }
+
+        /* Controls: hide title, let buttons fill the row */
         .controls-title { display: none; }
+        .controls { border-bottom: none; }
+        .btn-ctrl {
+          flex: 1 1 auto;
+          border-left: none;
+          border-top: var(--border);
+          border-right: var(--border);
+          padding: 0.65rem 0.4rem;
+          font-size: 0.58rem;
+          letter-spacing: 0.08em;
+        }
+        .btn-ctrl:last-child { border-right: none; }
+
+        /* Table scrolls horizontally — nothing bleeds off screen */
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table       { min-width: 480px; }
+
+        tbody td, thead th { padding: 0.75rem 0.75rem; }
+
+        .btn-action {
+          padding: 0.2rem 0.45rem;
+          font-size: 0.55rem;
+        }
+
+        /* Toast stays accessible at the bottom */
+        .toast {
+          bottom: 1rem;
+          right: 1rem;
+          left: 1rem;
+          max-width: none;
+        }
       }
     </style>
   </head>
