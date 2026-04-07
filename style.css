@@ -1,0 +1,55 @@
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  border-radius: 10px 10px 0 0 !important;
+}
+
+#queueNumberDisplay {
+  font-weight: bold;
+  color: #0d6efd;
+}
+
+#queueResult {
+  animation: fadeIn 0.5s;
+}
+
+/* Hide the debug element but keep it in DOM */
+#firebase-debug {
+  display: none !important;  /* Makes it invisible */
+  visibility: hidden !important; /* Double protection */
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Admin specific styles */
+.complete-btn {
+  margin-right: 5px;
+}
+
+@media (max-width: 576px) {
+  .display-1 {
+      font-size: 3rem;
+  }
+  
+  .table-responsive {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+  }
+}
+
