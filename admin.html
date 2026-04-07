@@ -3,69 +3,499 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Queue Admin</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
+    <title>Queue Admin — Crescent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="icon" type="image/png" href="CR1.png" />
+    <style>
+      :root {
+        --red: #E30016;
+        --red-dark: #a80010;
+        --red-glow: rgba(227, 0, 22, 0.15);
+        --bg: #0d0d0d;
+        --surface: #161616;
+        --surface2: #1f1f1f;
+        --border: rgba(255,255,255,0.07);
+        --text: #f0f0f0;
+        --muted: #666;
+        --green: #22c55e;
+        --amber: #f59e0b;
+        --blue: #3b82f6;
+      }
 
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'DM Sans', sans-serif;
+        min-height: 100vh;
+        padding: 0;
+      }
+
+      /* Top bar */
+      .topbar {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .topbar-brand {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.6rem;
+        letter-spacing: 3px;
+        color: var(--red);
+      }
+
+      .topbar-brand span {
+        color: var(--text);
+        font-size: 0.9rem;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 300;
+        letter-spacing: 1px;
+        margin-left: 0.75rem;
+        opacity: 0.5;
+      }
+
+      .live-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--muted);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .live-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.8); }
+      }
+
+      /* Main layout */
+      .main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+      }
+
+      /* Stats row */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .stat-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--muted);
+      }
+
+      .stat-value {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 2.5rem;
+        line-height: 1;
+        color: var(--text);
+      }
+
+      .stat-value.red { color: var(--red); }
+      .stat-value.green { color: var(--green); }
+      .stat-value.amber { color: var(--amber); }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .controls-title {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.3rem;
+        letter-spacing: 2px;
+        color: var(--text);
+        margin-right: auto;
+      }
+
+      .btn-ctrl {
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .btn-ctrl:hover { transform: translateY(-1px); filter: brightness(1.15); }
+      .btn-ctrl:active { transform: translateY(0); }
+
+      .btn-refresh { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+      .btn-clear-done { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+      .btn-clear-all { background: rgba(227,0,22,0.12); color: var(--red); border: 1px solid rgba(227,0,22,0.3); }
+
+      /* Table */
+      .table-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead tr {
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+      }
+
+      thead th {
+        padding: 0.85rem 1.25rem;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--muted);
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.15s;
+      }
+
+      tbody tr:last-child { border-bottom: none; }
+      tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+      tbody td {
+        padding: 1rem 1.25rem;
+        font-size: 0.9rem;
+        vertical-align: middle;
+      }
+
+      .queue-num {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+        color: var(--red);
+      }
+
+      .customer-name { font-weight: 500; }
+
+      .party-size {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .time-cell { color: var(--muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+
+      /* Status badges */
+      .badge-status {
+        display: inline-block;
+        padding: 0.3rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .badge-waiting { background: rgba(227,0,22,0.15); color: var(--red); border: 1px solid rgba(227,0,22,0.3); }
+      .badge-serving { background: rgba(59,130,246,0.15); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+      .badge-completed { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+
+      /* Action buttons */
+      .actions { display: flex; gap: 0.4rem; align-items: center; }
+
+      .btn-action {
+        border: none;
+        border-radius: 6px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: 'DM Sans', sans-serif;
+      }
+
+      .btn-action:hover { transform: translateY(-1px); filter: brightness(1.2); }
+
+      .btn-complete { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+      .btn-edit { background: rgba(59,130,246,0.15); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+      .btn-remove { background: rgba(227,0,22,0.12); color: var(--red); border: 1px solid rgba(227,0,22,0.3); }
+
+      /* Empty state */
+      .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.3; }
+      .empty-state p { font-size: 0.9rem; }
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+
+      .modal-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .modal-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 400px;
+        transform: translateY(20px);
+        transition: transform 0.2s;
+      }
+
+      .modal-overlay.active .modal-box {
+        transform: translateY(0);
+      }
+
+      .modal-title {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.4rem;
+        letter-spacing: 2px;
+        margin-bottom: 1.5rem;
+        color: var(--text);
+      }
+
+      .modal-title span { color: var(--red); }
+
+      .form-group { margin-bottom: 1.25rem; }
+
+      .form-label {
+        display: block;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--muted);
+        margin-bottom: 0.5rem;
+      }
+
+      .form-input {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        color: var(--text);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+
+      .form-input:focus { border-color: var(--red); }
+
+      .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.75rem;
+      }
+
+      .btn-modal-save {
+        flex: 1;
+        background: var(--red);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      .btn-modal-save:hover { background: var(--red-dark); }
+
+      .btn-modal-cancel {
+        flex: 1;
+        background: var(--surface2);
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.85rem 1.25rem;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        z-index: 9999;
+        transform: translateY(80px);
+        opacity: 0;
+        transition: all 0.3s ease;
+        max-width: 300px;
+      }
+
+      .toast.show { transform: translateY(0); opacity: 1; }
+      .toast.success { border-left: 3px solid var(--green); }
+      .toast.error { border-left: 3px solid var(--red); }
+
+      @media (max-width: 640px) {
+        .stats-row { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+        .stat-value { font-size: 1.8rem; }
+        thead th:nth-child(3), tbody td:nth-child(3),
+        thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+        .topbar { padding: 0 1rem; }
+        .main { padding: 1rem; }
+      }
+    </style>
   </head>
   <body>
-    
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-10">
-          <div class="card mt-5">
-            <div class="card-header text-white" style="background-color: #E30016;">
-              <h2 class="text-center" style="font-weight: bold;">Admin Dashboard</h2>
-            </div>
-            <div class="card-body">
-              <div class="d-flex justify-content-between mb-3">
-                <h4>Current Queue</h4>
-                <div>
-                  <button id="refreshBtn" class="btn btn-sm btn-success me-2">
-                    Refresh
-                  </button>
-                  <button id="clearCompletedBtn" class="btn btn-sm btn-warning me-2">
-                    Clear Completed
-                  </button>
-                  <button id="clearAllBtn" class="btn btn-sm btn-danger me-2">
-                    Clear All
-                  </button>
-                  <span class="badge bg-primary">Total: <span id="totalCount"></span></span>
-                </div>
-              </div>
-              <div class="table-responsive">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Queue #</th>
-                      <th>Name</th>
-                      <th>Party Size</th>
-                      <th>Waiting Time</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="queueTable">
-                    <!-- Queue items will be inserted here -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-brand">CRESCENT <span>ADMIN</span></div>
+      <div class="live-indicator">
+        <div class="live-dot"></div>
+        Live
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total</div>
+          <div class="stat-value red" id="totalCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Waiting</div>
+          <div class="stat-value" id="waitingCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Done</div>
+          <div class="stat-value green" id="completedCount">0</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <div class="controls-title">Queue</div>
+        <button id="refreshBtn" class="btn-ctrl btn-refresh">↺ Refresh</button>
+        <button id="clearCompletedBtn" class="btn-ctrl btn-clear-done">✓ Clear Done</button>
+        <button id="clearAllBtn" class="btn-ctrl btn-clear-all">✕ Clear All</button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Queue #</th>
+              <th>Name</th>
+              <th>Party</th>
+              <th>Time</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="queueTable"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+      <div class="modal-box">
+        <div class="modal-title">Edit <span>Entry</span></div>
+        <input type="hidden" id="editDocId"/>
+        <div class="form-group">
+          <label class="form-label">Customer Name</label>
+          <input type="text" class="form-input" id="editName" placeholder="Enter name"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Party Size</label>
+          <input type="number" class="form-input" id="editPartySize" min="1" max="20" placeholder="Number of guests"/>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" id="editCancel">Cancel</button>
+          <button class="btn-modal-save" id="editSave">Save Changes</button>
         </div>
       </div>
     </div>
 
-    <div
-      id="firebase-debug"
-      class="alert alert-info position-fixed bottom-0 end-0 m-3 d-none"
-    ></div>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
-    <!-- Firebase scripts -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="admin.js"></script>
